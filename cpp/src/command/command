@@ -1,0 +1,12 @@
+#ifndef _COMMAND_
+#define _COMMAND_
+
+#include "command.h"
+#include "extcmd.h"
+#include "historycmd.h"
+#include "builtin.h"
+#include "chdircmd.h"
+
+#include "cmdfactory.h"
+
+#endif
