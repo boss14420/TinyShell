@@ -23,14 +23,14 @@
 #include <string>
 
 class Command {
-    std::string cmdstr;
+//    std::string cmdstr;
 public:
-    Command(std::string s) : cmdstr(s) {}
+//    Command(std::string s) : cmdstr(s) {}
     Command() {}
 
     virtual ~Command() {}
 
-    virtual std::string command() const { return cmdstr; }
+//    virtual std::string command() const { return cmdstr; }
     int virtual execute() const = 0;
 };
 

@@ -39,7 +39,7 @@ class BuiltInCommand : public Command {
 public:
 
     BuiltInCommand() {}
-    BuiltInCommand(std::string const& cmdstr) : Command(cmdstr) {}
+//    BuiltInCommand(std::string const& cmdstr) : Command(cmdstr) {}
     virtual int execute() const = 0;
 
     static bool hasCommand(std::string const& cmd) {

@@ -26,12 +26,13 @@
 #include <wordexp.h>
 
 #include <string>
-#include <deque>
+//#include <deque>
 #include <cstring>
 #include <stdexcept>
 
 #ifndef NDEBUG
-    #include <iostream>
+    #include <unistd.h>
+    #include <cstdio>
 #endif
 
 class CommandExecuteException : public std::exception {
@@ -55,6 +56,10 @@ public:
         : path(p), options(*o), foreground(f) {}
 
     virtual ~ExternalCommand() {
+#ifndef NDEBUG
+//        std::printf("destructor: %s ExternalCommand object at %p, pid %d\n", 
+//                options.we_wordv[0], this, getpid());
+#endif
         delete[] path;
         wordfree(&options);
     }

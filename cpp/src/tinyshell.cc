@@ -154,14 +154,13 @@ void handle_signal(int signo) {
 }
 
 char * get_shell_promt(char * src) {
-    char *cwd;
-    std::sprintf(src, "%s:%s", std::getenv("USER"), cwd = getcwd(NULL, 1024));
+    static char cwd[1024];
+    std::sprintf(src, "%s:%s", std::getenv("USER"), getcwd(cwd, 1024));
     if(getuid()) // Normal user
         std::strcat(src, " $ ");
     else         // root user
         std::strcat(src, " # ");
 
-    free(cwd);
     return src;    
 }
 
@@ -197,14 +196,13 @@ int start_shell() {
 
                 // Execute command
                 cmd->execute();
-            } catch (CommandExecuteException e) {
-                std::fprintf(stderr, "%s\n", e.what());
+            } catch (CommandExecuteException &ex) {
+                std::fprintf(stderr, "%s\n", ex.what());
                 return EXIT_FAILURE; // exit child process
             } catch (std::exception &ex) {
                 std::fprintf(stderr, "%s\n", ex.what());
             }
 
-//            HistoryCommand::historyAdd(cmd); // add history for history command
             add_history(input);              // add history for up/down key
 
         }
