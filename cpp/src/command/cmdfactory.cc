@@ -33,8 +33,7 @@ Command* CommandFactory::parseCommand(std::string cmdstr) {
     auto si = cmdstr.rbegin();
     for(; si != cmdstr.rend() && 
             (*si == ' ' || *si == '\t'); ++si);
-    if(*si == '&' && ++si != cmdstr.rend() && 
-            (*si == ' ' || *si == '\t')) {
+    if(*si == '&') {
         foreground = false;
         cmdstr.erase(si.base());
     }
@@ -57,21 +56,26 @@ Command* CommandFactory::parseCommand(std::string cmdstr) {
         switch(BuiltInCommand::getCommand(first_word)) {
             case BuiltInCommand::HISTORY:
                 return new HistoryCommand();
+                wordfree(&options);
                 break;
             case BuiltInCommand::KILL:
+                wordfree(&options);
                 break;
             case BuiltInCommand::CHDIR:
                 return new ChdirCommand(&options);
                 break;
             case BuiltInCommand::HELP:
+                wordfree(&options);
                 break;
         }
     } else {
         char * path = pathLookup(first_word);
         if(path) {
             return new ExternalCommand(path, &options, foreground);
-        } else 
+        } else {
+            wordfree(&options);
             throw BadCommandException(first_word);
+        }
     }
     return NULL;
 
@@ -140,12 +144,29 @@ done:
 #endif
 
 char * CommandFactory::pathLookup(std::string const& file) {
-    char* path = NULL;
+    char* filepath = NULL;
     struct stat st;
     
+    /*  'file' is not a path name */
     if(file.find_first_of('/') == std::string::npos) {
-        char *PATH = getenv("PATH");
-        path = new char[std::strlen(PATH)+file.length()+2];
+        char *PATH = strdup(getenv("PATH"));
+        if(PATH) {
+            filepath = new char[std::strlen(PATH)+file.length()+2];
+
+            char * path = std::strtok(PATH, ":");
+            for(; path; path = std::strtok(NULL, ":")){
+                std::strcpy(filepath, path);
+                std::strcat(filepath, "/");
+                std::strcat(filepath, file.c_str());
+                if(!stat(filepath, &st)) {
+                    std::free(PATH);
+                    return filepath;
+                }
+            }
+            delete[] filepath;
+        }
+        std::free(PATH);
+#if 0
         do {
             if(*PATH == ':')
                 ++PATH;
@@ -160,13 +181,13 @@ char * CommandFactory::pathLookup(std::string const& file) {
 
             PATH += pathlength;
         } while(*PATH);
+#endif
 
-        delete[] path;
         return NULL;
     } else if(!stat(file.c_str(), &st)) {
-        path = new char[file.length()+1];
-        std::strcpy(path, file.c_str());
-        return path;
+        filepath = new char[file.length()+1];
+        std::strcpy(filepath, file.c_str());
+        return filepath;
     }
     return NULL;
 }

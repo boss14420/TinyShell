@@ -29,6 +29,7 @@
 #endif
 
 #include <signal.h>
+#include <termios.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -38,25 +39,70 @@ void handle_signal(int signo);
 
 char * get_shell_promt(char * src);
 int start_shell();
+void init_shell();
 
 void initialize_auto_completion();
 char **tinyshel_completion PARAMS((const char *, int, int));
 char *command_generator PARAMS((const char *, int));
+
+/*  global variable */
+struct termios shell_tmodes; // old terminal attributes
 
 int main() {
 
 //    std::cout.sync_with_stdio(false);
 //    std::cin.sync_with_stdio(false);
 //    signal(SIGINT, SIG_IGN);
-    signal(SIGINT, handle_signal);
-    
 
+    init_shell();
     initialize_auto_completion();
-//    std::atexit([] () { clear_history(); });
+
+    std::atexit([] () { clear_history(); });
 
     return start_shell();
 
 }
+
+
+/*
+ * ===  FUNCTION  ======================================================================
+ *         Name:  init_shell
+ *  Description:
+ * =====================================================================================
+ */
+void init_shell (  ) {
+    int shell_pgid;
+    int shell_terminal = STDIN_FILENO;
+    int shell_is_interactive = isatty(shell_terminal);
+
+    if(shell_is_interactive) {
+        /*  loop until we are in the foreground */
+        while(tcgetpgrp(shell_terminal) != (shell_pgid = getpgrp()))
+            kill(-shell_pgid, SIGTTIN);
+
+        /*  Ignore interactive and job-control signals */
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
+        signal(SIGTSTP, SIG_IGN);
+        signal(SIGTTIN, SIG_IGN);
+        signal(SIGTTOU, SIG_IGN);
+        signal(SIGCHLD, SIG_IGN);
+
+        /*  Put ourselves in our own process group */
+        shell_pgid = getpid();
+        if(setpgid(shell_pgid, shell_pgid) < 0) {
+            std::perror("Couldn't put the shell in its own process group: ");
+            std::exit(EXIT_FAILURE);
+        }
+
+        /*  Grab control of the terminal. */
+        tcsetpgrp(shell_terminal, shell_pgid);
+
+        /*  Save default terminal attributes for shell */
+        tcgetattr(shell_terminal, &shell_tmodes); 
+    }
+}
+/* -----  end of function init_shell  ----- */
 
 void initialize_auto_completion() {
     rl_bind_key('\t', rl_complete);
