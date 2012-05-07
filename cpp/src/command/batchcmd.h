@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  builtin.cc
+ *       Filename:  batchcmd.h
  *
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  02/18/2012 08:54:43 PM
+ *        Created:  03/29/2012 11:51:41 AM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -16,12 +16,19 @@
  * =====================================================================================
  */
 
+#ifndef _BATCH_CMD_
+#define _BATCH_CMD_
+
 #include "builtin.h"
-#include <utility>
+#include <string>
 
-typedef std::pair<std::string, BuiltInCommand::CommandType> PSI;
+class BatchCommandException : public BuildInCommandException {};
 
-std::unordered_map<std::string, BuiltInCommand::CommandType> BuiltInCommand::builtins(
-        { PSI("history", HISTORY), PSI("kill", KILL), PSI("cd", CHDIR),
-            PSI("help", HELP), PSI("bat", BATCH) } );
+class BatchCommand : public BuiltInCommand {
+    std::string batchfile;
+public:
+    BatchCommand(std::string const& bf) : batchfile(bf) {}
+    int execute() const;
+};
 
+#endif

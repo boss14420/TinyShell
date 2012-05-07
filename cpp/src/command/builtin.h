@@ -50,7 +50,7 @@ public:
         return builtins[cmd];
     }
 
-    enum CommandType { HISTORY, KILL, CHDIR, HELP };
+    enum CommandType { HISTORY, KILL, CHDIR, HELP, BATCH };
 //    static const int HISTORY = 1;
 //    static const int KILL = 2;
 //    static const int CHDIR = 3;
@@ -61,3 +61,5 @@ private:
 };
 
 #endif
+
+/* vim: set filetype=cpp: */

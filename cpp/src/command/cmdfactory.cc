@@ -17,25 +17,146 @@
  */
 
 #include "command"
-#include <sys/stat.h>
-#include <cstdlib>
 
 #ifndef _GNU_SOURCE
     #define _GNU_SOURCE
 #endif
 #include <cstring>
+#include <cctype>
+#include <cstdlib>
+
 #include <wordexp.h>
+#include <sys/stat.h>
 
-Command* CommandFactory::parseCommand(std::string cmdstr) {
+#include <utility>
 
+#ifdef _ENABLE_REDIRECT_
+std::string nextWord();
+
+Command* CommandFactory::parseCommand(std::string const& cmdstr) {
+
+    // remove leading white space
+    auto si = cmdstr.begin();
+    while((si != cmdstr.end()) && std::isspace(*si)) ++si;
+
+    // remove ending white space
+    auto eri = cmdstr.rbegin();
+    while((eri != cmdstr.rend()) && std::isspace(*eri)) ++eri;
+    
     // Check for background sign '&'
     bool foreground = true;
-    auto si = cmdstr.rbegin();
-    for(; si != cmdstr.rend() && 
-            (*si == ' ' || *si == '\t'); ++si);
-    if(*si == '&') {
-        foreground = false;
-        cmdstr.erase(si.base());
+    if(eri != cmdstr.rend() && *eri == '&') { /* cmdstr ended by '&' */
+        /*  and is not a redirect */
+        if((eri+1) == cmdstr.rend() 
+                || (*(eri+1) != '&' && *(eri+1) != '>' && *(eri+1) != '<')) {
+            foreground = false;
+            ++eri;
+        }
+    }
+    auto ei = (eri-1).base();
+
+    // 
+    std::string formattedcmd = "";
+
+    std::string word;
+    std::deque<Redirect> rdlist;
+    Redirect rd;
+
+    while(si != ei) {
+        while(std::isspace(*si)) {
+            ++si;
+            continue;
+        }
+        word = "";
+        word = nextWord();
+        if(word.size() && word[0] != '\'' && word[0] != '\"'
+              && ( (word.find_first_of('<') != std::string::npos) 
+                || (word.find_first_of('>') != std::string::npos) )) {
+            int number = 0;
+            auto wi = word.begin();
+            Redirect rd;
+            for(; wi != word.end() && std::isdigit(*wi); ++wi)
+                number = number*10 + (*wi-'0');
+
+            if(*wi == '>') {
+                rd.fd = number ? number : STDOUT_FILENO;
+                rd.type = Redirect::RD_OUT;
+                if(++wi != word.end() && (*wi == '>'))
+                    rd.type = Redirect::RD_APPEND;
+                else
+                    --wi;
+            } else if(*wi == '<') {
+                rd.fd = number ? number : STDIN_FILENO;
+                rd.type = Redirect::RD_IN;
+                if(++wi != word.end() && (*wi == '>'))
+                    rd.type |= Redirect::RD_OUT;
+                else --wi;
+            } else {
+                // not a redirect
+                formattedcmd += word + ' ';
+                continue;
+            }
+
+            auto si_dest = wi;
+            if(++wi != word.end() && *wi == '&') {
+                if(++wi != word.end() && std::isdigit(*wi)) {
+                    number = 0;
+                    for(; wi != word.end() && std::isdigit(*wi); ++wi)
+                        number = number*10 + (*wi - '0');
+                    if(wi != word.end() && *wi == '-') {
+                        if(std::isdigit(*(wi-1)))
+                            rd.type |= Redirect::RD_MOVE;
+                        else
+                            rd.type |= Redirect::RD_CLOSE;
+                    }
+                    
+                    if(++wi == word.end()) {
+                        rd.dest_fd = number;
+                        rdlist.push_back(std::move(rd));
+                    } else {
+                        throw RedirectException();
+                    }
+                } else
+                    throw RedirectException();
+            } else {
+                word = nextWord();
+                if(word.size() && word[0] != '&')
+                    rd.filename = word;
+                else
+                    throw RedirectException();
+            }
+        }
+
+
+/*         switch(*si) {
+ *             case ' ':
+ *             case '\t':
+ *                 if((si+1) != ei && std::isspace(*(si+1)))
+ *                     ++si;
+ *                 else {
+ *                     word = nextWord();
+ *                     if(word.size() && word[0] != '\'' && word[0] 
+ *                     }
+ * 
+ *                     formattedcmd += ' ' + word;
+ *                 }
+ *                 break;
+ * 
+ *             case '<':
+ *                 if(si != cmdstr.begin() && std::isdigit(*(si-1)))
+ *                     rd.fd = *(si-1) - '0';
+ *                 else rd.fd = STDIN_FILENO;
+ *                 rd.type = Redirect::RD_IN;
+ *                 while(si != ei && std::isspace(*si)) ++si;
+ *                 word = "";
+ *                 word = nextWord();
+ * 
+ *             case '>':
+ *                 if(si != cmdstr.begin() && std::isdigit(*(si-1)))
+ *                     rd.fd = *(si-1) - '0';
+ *                 else rd.fd = STDOUT_FILENO;
+ */
+       
     }
 
     // word expansion
@@ -80,6 +201,67 @@ Command* CommandFactory::parseCommand(std::string cmdstr) {
     return NULL;
 
 }
+
+#else
+Command* CommandFactory::parseCommand(std::string cmdstr) {
+
+    // Check for background sign '&'
+    bool foreground = true;
+    auto si = cmdstr.rbegin();
+    for(; si != cmdstr.rend() && 
+            (*si == ' ' || *si == '\t'); ++si);
+    if(*si == '&') {
+        foreground = false;
+        cmdstr.erase(si.base());
+    }
+
+    // word expansion
+    wordexp_t options;
+    int ret;
+    switch(ret = wordexp(cmdstr.c_str(), &options, WRDE_SHOWERR)) {
+        case 0:                 // Success
+            break;
+        case WRDE_NOSPACE:
+            wordfree(&options);
+        default:
+            throw CommandParseException(ret);
+    }
+
+    // create command object
+
+    if(!options.we_wordc)
+        throw NullCommand();
+
+    std::string first_word = options.we_wordv[0];
+    if(BuiltInCommand::hasCommand(first_word)) {
+        switch(BuiltInCommand::getCommand(first_word)) {
+            case BuiltInCommand::HISTORY:
+                return new HistoryCommand();
+                wordfree(&options);
+                break;
+            case BuiltInCommand::KILL:
+                wordfree(&options);
+                break;
+            case BuiltInCommand::CHDIR:
+                return new ChdirCommand(&options);
+                break;
+            case BuiltInCommand::HELP:
+                wordfree(&options);
+                break;
+        }
+    } else {
+        char * path = pathLookup(first_word);
+        if(path) {
+            return new ExternalCommand(path, &options, foreground);
+        } else {
+            wordfree(&options);
+            throw BadCommandException(first_word);
+        }
+    }
+    return NULL;
+
+}
+#endif
 
 #if 0
 Command* CommandFactory::parseCommand(std::string const& cmdstr) {

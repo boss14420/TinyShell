@@ -40,3 +40,5 @@ class ChdirCommand : public BuiltInCommand {
 //char ChdirCommand::old_dir[1024] = {'\0'};
 
 #endif
+
+/* vim: set filetype=cpp: */

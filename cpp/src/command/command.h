@@ -34,4 +34,23 @@ public:
     int virtual execute() const = 0;
 };
 
+struct Redirect {
+    static const int RD_OUT = 1;
+    static const int RD_APPEND = 2;
+    static const int RD_IN = 4;
+    static const int RD_CLOSE = 8;
+    static const int RD_MOVE = 16;
+
+    int type;
+    int fd;
+//    int dest_fd;
+    union {
+        int dest_fd;
+        std::string filename;
+    };
+
+};
+
 #endif
+
+/* vim: set filetype=cpp: */

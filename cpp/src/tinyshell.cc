@@ -17,6 +17,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -28,6 +29,11 @@
     #include <iterator>
 #endif
 
+#ifndef _GNU_SOURCE
+    #define _GNU_SOURCE
+#endif
+#include <getopt.h>
+
 #include <signal.h>
 #include <termios.h>
 #include <readline/readline.h>
@@ -36,6 +42,10 @@
 using std::shared_ptr;
 
 void handle_signal(int signo);
+
+int parse_option(int argc, char *argv[]);
+int execute_command(std::string const&);
+void execute_script(char const*);
 
 char * get_shell_promt(char * src);
 int start_shell();
@@ -48,20 +58,68 @@ char *command_generator PARAMS((const char *, int));
 /*  global variable */
 struct termios shell_tmodes; // old terminal attributes
 
-int main() {
+int main(int argc, char *argv[]) {
 
 //    std::cout.sync_with_stdio(false);
 //    std::cin.sync_with_stdio(false);
 //    signal(SIGINT, SIG_IGN);
 
-    init_shell();
-    initialize_auto_completion();
+    if(argc == 1) {
+        init_shell();
+        initialize_auto_completion();
 
-    std::atexit([] () { clear_history(); });
+        std::atexit([] () { clear_history(); });
 
-    return start_shell();
-
+        return start_shell();
+    } else
+        parse_option(argc, argv);
+    return EXIT_SUCCESS;
 }
+
+
+/*
+ * ===  FUNCTION  ======================================================================
+ *         Name:  parse_option
+ *  Description:
+ * =====================================================================================
+ */
+int parse_option (int argc, char *argv[] ) {
+    
+    int opt;
+    struct option longopts[] = {
+        {"script", 1, NULL, 'f'},
+        {"command", 1, NULL, 'c'},
+        {"help", 0, NULL, 'h'},
+        {0,0,0,0}};
+
+    while( (opt = getopt_long(argc, argv, "hf:c:", longopts, NULL)) != -1) {
+        switch(opt) {
+            case 'h':
+                std::printf("Usage %s [OPTION] ...\n", argv[0]);
+                std::printf("Options:\n");
+                std::printf(" -f, --script=FILENAME\tExecute script FILENAME\n");
+                std::printf(" -c, --command=COMMAND\tExecute command COMMAND\n");
+                std::printf(" -h, --help           \tPrint this help\n\n");
+                break;
+            case 'c':
+                std::exit(execute_command(std::string(optarg)));
+                break;
+            case 'f':
+                execute_script(optarg);
+                break;
+            case ':':
+                std::fprintf(stderr, "Option need a value\n");
+                std::exit(EXIT_FAILURE);
+            case '?':
+                std::fprintf(stderr, "Unknown option: %c\n", optopt);
+                std::exit(EXIT_FAILURE);
+        }
+    }
+
+    return 0;
+}
+/* -----  end of function parse_option  ----- */
+
 
 
 /*
@@ -245,6 +303,7 @@ int start_shell() {
             } catch (CommandExecuteException &ex) {
                 std::fprintf(stderr, "%s\n", ex.what());
                 return EXIT_FAILURE; // exit child process
+            } catch(NullCommand ) {
             } catch (std::exception &ex) {
                 std::fprintf(stderr, "%s\n", ex.what());
             }
@@ -260,3 +319,55 @@ int start_shell() {
     clear_history();
     return EXIT_SUCCESS;
 }
+
+
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  execute_command
+ *  Description:  
+ * =====================================================================================
+ */
+int execute_command(std::string const& cmdstr) {
+    CommandFactory cf;
+    Command *cmd = NULL;
+
+    try {
+        cmd = cf.parseCommand(cmdstr);
+        cmd->execute();
+    } catch(CommandExecuteException &ex) {
+        std::fprintf(stderr, "%s\n", ex.what());
+        std::exit(EXIT_FAILURE); // exit child process
+    } catch(NullCommand ) {
+    } catch (std::exception &ex) {
+        std::fprintf(stderr, "%s\n", ex.what());
+        delete cmd;
+        return EXIT_FAILURE;
+    }
+    delete cmd;
+    return 0;
+}
+/* ---------- end of function execute_command ------------------------ */
+
+
+/*
+ * ===  FUNCTION  ======================================================================
+ *         Name:  execute_script
+ *  Description:
+ * =====================================================================================
+ */
+void execute_script (char const* filename ) {
+    std::ifstream ifs(filename);
+    if(!ifs) {
+        std::perror(filename);
+        std::exit(EXIT_FAILURE);
+    } else {
+        std::string cmdstr;
+        while(!ifs.eof()) {
+            std::getline(ifs, cmdstr);
+            execute_command(cmdstr);
+        }
+    }
+}
+/* -----  end of function execute_script  ----- */
+

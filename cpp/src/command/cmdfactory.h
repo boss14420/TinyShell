@@ -54,6 +54,13 @@ public:
     }
 };
 
+class RedirectException : public std::exception {
+
+};
+
+class NullCommand : public std::exception {
+};
+
 class CommandFactory {
     char* pathLookup(std::string const& file);
 public:
@@ -61,3 +68,5 @@ public:
 };
 
 #endif
+
+/* vim: set filetype=cpp: */

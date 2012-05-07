@@ -11,7 +11,7 @@ FIND_LIBRARY(READLINE readline)
 FIND_LIBRARY(BOOST_SYSTEM boost_system)
 FIND_LIBRARY(BOOST_FILESYSTEM boost_filesystem)
 
-SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -std=gnu++0x -fno-inline -std=gnu++0x")
+SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -std=gnu++0x -fno-inline")
 #SET(CMAKE_CXX_FLAGS "-O2 -Wall -std=gnu++0x -finline-functions -vec-report2 -xHost -DNDEBUG -fopenmp")
 #SET(CMAKE_CXX_FLAGS "-O2 -Wall -std=c++0x -fopenmp -finline-functions -ftree-vectorize -ftree-vectorizer-verbose=2 -ffast-math -march=native -DNDEBUG")
 

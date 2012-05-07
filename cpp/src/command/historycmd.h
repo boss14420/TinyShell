@@ -27,7 +27,7 @@
 using std::shared_ptr;
 
 class HistoryCommand : public BuiltInCommand {
-    static std::deque<shared_ptr<Command> > history;
+//    static std::deque<shared_ptr<Command> > history;
 
 public:
     HistoryCommand() {}
@@ -51,3 +51,5 @@ public:
 
 };
 #endif
+
+/* vim: set filetype=cpp: */

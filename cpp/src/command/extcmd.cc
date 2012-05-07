@@ -17,6 +17,8 @@
  */
 
 #include "extcmd.h"
+//#include "../process/process.h"
+
 //#include <vector>
 //#include <deque>
 //#include <iterator>
@@ -112,6 +114,7 @@ ExternalCommand::ExternalCommand(std::string const& cmdstr, char *pth)
 int ExternalCommand::execute() const {
     pid_t pid = fork();
     if(pid > 0) {
+//        Process::addProcess(pid, path, options.we_wordv);
         if(foreground)
             //                wait(NULL);
             waitpid(pid, NULL, 0);

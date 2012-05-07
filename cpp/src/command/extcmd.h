@@ -69,3 +69,5 @@ public:
 };
 
 #endif
+
+/* vim: set filetype=cpp: */
