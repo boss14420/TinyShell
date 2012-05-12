@@ -9,6 +9,10 @@
 
 #include "cmdfactory.h"
 
+#include "../job/jobcmd.h"
+#include "../job/fgcmd.h"
+#include "../job/bgcmd.h"
+
 #endif
 
 /* vim: set filetype=cpp: */

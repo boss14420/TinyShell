@@ -22,6 +22,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+
+#include "job/shell.h"
 #include "command/command"
 
 #ifdef EXECUTABLE_COMPLETE
@@ -44,19 +46,13 @@ using std::shared_ptr;
 void handle_signal(int signo);
 
 int parse_option(int argc, char *argv[]);
-int execute_command(std::string const&);
-void execute_script(char const*);
 
 char * get_shell_promt(char * src);
 int start_shell();
-void init_shell();
 
 void initialize_auto_completion();
 char **tinyshel_completion PARAMS((const char *, int, int));
 char *command_generator PARAMS((const char *, int));
-
-/*  global variable */
-struct termios shell_tmodes; // old terminal attributes
 
 int main(int argc, char *argv[]) {
 
@@ -65,15 +61,16 @@ int main(int argc, char *argv[]) {
 //    signal(SIGINT, SIG_IGN);
 
     if(argc == 1) {
-        init_shell();
+//        init_shell();
+        Shell::init();
         initialize_auto_completion();
 
         std::atexit([] () { clear_history(); });
 
         return start_shell();
     } else
-        parse_option(argc, argv);
-    return EXIT_SUCCESS;
+        return parse_option(argc, argv);
+//    return EXIT_SUCCESS;
 }
 
 
@@ -92,6 +89,7 @@ int parse_option (int argc, char *argv[] ) {
         {"help", 0, NULL, 'h'},
         {0,0,0,0}};
 
+    CommandFactory cf;
     while( (opt = getopt_long(argc, argv, "hf:c:", longopts, NULL)) != -1) {
         switch(opt) {
             case 'h':
@@ -102,65 +100,24 @@ int parse_option (int argc, char *argv[] ) {
                 std::printf(" -h, --help           \tPrint this help\n\n");
                 break;
             case 'c':
-                std::exit(execute_command(std::string(optarg)));
+                return cf.execute_command(std::string(optarg));
                 break;
             case 'f':
-                execute_script(optarg);
+                return cf.execute_script(optarg);
                 break;
             case ':':
                 std::fprintf(stderr, "Option need a value\n");
-                std::exit(EXIT_FAILURE);
+                return EXIT_FAILURE;
             case '?':
                 std::fprintf(stderr, "Unknown option: %c\n", optopt);
-                std::exit(EXIT_FAILURE);
+                return EXIT_FAILURE;
         }
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 /* -----  end of function parse_option  ----- */
 
-
-
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  init_shell
- *  Description:
- * =====================================================================================
- */
-void init_shell (  ) {
-    int shell_pgid;
-    int shell_terminal = STDIN_FILENO;
-    int shell_is_interactive = isatty(shell_terminal);
-
-    if(shell_is_interactive) {
-        /*  loop until we are in the foreground */
-        while(tcgetpgrp(shell_terminal) != (shell_pgid = getpgrp()))
-            kill(-shell_pgid, SIGTTIN);
-
-        /*  Ignore interactive and job-control signals */
-        signal(SIGINT, SIG_IGN);
-        signal(SIGQUIT, SIG_IGN);
-        signal(SIGTSTP, SIG_IGN);
-        signal(SIGTTIN, SIG_IGN);
-        signal(SIGTTOU, SIG_IGN);
-        signal(SIGCHLD, SIG_IGN);
-
-        /*  Put ourselves in our own process group */
-        shell_pgid = getpid();
-        if(setpgid(shell_pgid, shell_pgid) < 0) {
-            std::perror("Couldn't put the shell in its own process group: ");
-            std::exit(EXIT_FAILURE);
-        }
-
-        /*  Grab control of the terminal. */
-        tcsetpgrp(shell_terminal, shell_pgid);
-
-        /*  Save default terminal attributes for shell */
-        tcgetattr(shell_terminal, &shell_tmodes); 
-    }
-}
-/* -----  end of function init_shell  ----- */
 
 void initialize_auto_completion() {
     rl_bind_key('\t', rl_complete);
@@ -279,11 +236,14 @@ int start_shell() {
 
     char *input, shell_promt[1024];
 
+    using_history();
     while(true) {
+        Shell::report_finished_job();
         input = readline(get_shell_promt(shell_promt));
 
         if(!input) {  // ^D dectected
             std::printf("\n");
+//            continue;
             break;
         }
 
@@ -293,7 +253,19 @@ int start_shell() {
         }
 
         if(std::strlen(input)) { // non blank command
-            strcmd.assign(input);
+            char *expansion;
+            
+            // history expansion
+            int ex = history_expand(input, &expansion);
+            if( -1 == ex || 2 == ex ) {
+                std::free(input);
+                std::free(expansion);
+                continue;
+            }
+            if( 1 == ex)
+                std::printf("%s\n", expansion);
+
+            strcmd.assign(expansion);
 
             try {
                 cmd.reset(cf.parseCommand(strcmd));
@@ -302,13 +274,14 @@ int start_shell() {
                 cmd->execute();
             } catch (CommandExecuteException &ex) {
                 std::fprintf(stderr, "%s\n", ex.what());
-                return EXIT_FAILURE; // exit child process
+                std::exit(EXIT_FAILURE); // exit child process
             } catch(NullCommand ) {
             } catch (std::exception &ex) {
                 std::fprintf(stderr, "%s\n", ex.what());
             }
 
-            add_history(input);              // add history for up/down key
+            add_history(expansion);              // add history for up/down key
+            std::free(expansion);
 
         }
         std::free(input);
@@ -321,53 +294,4 @@ int start_shell() {
 }
 
 
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  execute_command
- *  Description:  
- * =====================================================================================
- */
-int execute_command(std::string const& cmdstr) {
-    CommandFactory cf;
-    Command *cmd = NULL;
-
-    try {
-        cmd = cf.parseCommand(cmdstr);
-        cmd->execute();
-    } catch(CommandExecuteException &ex) {
-        std::fprintf(stderr, "%s\n", ex.what());
-        std::exit(EXIT_FAILURE); // exit child process
-    } catch(NullCommand ) {
-    } catch (std::exception &ex) {
-        std::fprintf(stderr, "%s\n", ex.what());
-        delete cmd;
-        return EXIT_FAILURE;
-    }
-    delete cmd;
-    return 0;
-}
-/* ---------- end of function execute_command ------------------------ */
-
-
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  execute_script
- *  Description:
- * =====================================================================================
- */
-void execute_script (char const* filename ) {
-    std::ifstream ifs(filename);
-    if(!ifs) {
-        std::perror(filename);
-        std::exit(EXIT_FAILURE);
-    } else {
-        std::string cmdstr;
-        while(!ifs.eof()) {
-            std::getline(ifs, cmdstr);
-            execute_command(cmdstr);
-        }
-    }
-}
-/* -----  end of function execute_script  ----- */
 

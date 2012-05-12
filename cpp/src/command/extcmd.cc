@@ -17,6 +17,7 @@
  */
 
 #include "extcmd.h"
+#include "../job/shell.h"
 //#include "../process/process.h"
 
 //#include <vector>
@@ -114,12 +115,14 @@ ExternalCommand::ExternalCommand(std::string const& cmdstr, char *pth)
 int ExternalCommand::execute() const {
     pid_t pid = fork();
     if(pid > 0) {
-//        Process::addProcess(pid, path, options.we_wordv);
+        auto j = Shell::addJob(pid, cmdstr);
         if(foreground)
-            //                wait(NULL);
-            waitpid(pid, NULL, 0);
+            Shell::moveToForeground(j);
+        else
+            Shell::moveToBackground(j);
         return 0;
     } else if(pid == 0) {
+        Shell::init_child_process(getpid(), foreground);
         if(execv(path, options.we_wordv) == -1) {
             throw CommandExecuteException(errno, path);
         }

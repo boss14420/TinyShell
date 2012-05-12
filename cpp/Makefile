@@ -268,6 +268,78 @@ src/external.c.s:
 	$(MAKE) -f CMakeFiles/external.dir/build.make CMakeFiles/external.dir/src/external.c.s
 .PHONY : src/external.c.s
 
+src/job/bgcmd.o: src/job/bgcmd.cc.o
+.PHONY : src/job/bgcmd.o
+
+# target to build an object file
+src/job/bgcmd.cc.o:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/bgcmd.cc.o
+.PHONY : src/job/bgcmd.cc.o
+
+src/job/bgcmd.i: src/job/bgcmd.cc.i
+.PHONY : src/job/bgcmd.i
+
+# target to preprocess a source file
+src/job/bgcmd.cc.i:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/bgcmd.cc.i
+.PHONY : src/job/bgcmd.cc.i
+
+src/job/bgcmd.s: src/job/bgcmd.cc.s
+.PHONY : src/job/bgcmd.s
+
+# target to generate assembly for a file
+src/job/bgcmd.cc.s:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/bgcmd.cc.s
+.PHONY : src/job/bgcmd.cc.s
+
+src/job/fgcmd.o: src/job/fgcmd.cc.o
+.PHONY : src/job/fgcmd.o
+
+# target to build an object file
+src/job/fgcmd.cc.o:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/fgcmd.cc.o
+.PHONY : src/job/fgcmd.cc.o
+
+src/job/fgcmd.i: src/job/fgcmd.cc.i
+.PHONY : src/job/fgcmd.i
+
+# target to preprocess a source file
+src/job/fgcmd.cc.i:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/fgcmd.cc.i
+.PHONY : src/job/fgcmd.cc.i
+
+src/job/fgcmd.s: src/job/fgcmd.cc.s
+.PHONY : src/job/fgcmd.s
+
+# target to generate assembly for a file
+src/job/fgcmd.cc.s:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/fgcmd.cc.s
+.PHONY : src/job/fgcmd.cc.s
+
+src/job/shell.o: src/job/shell.cc.o
+.PHONY : src/job/shell.o
+
+# target to build an object file
+src/job/shell.cc.o:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/shell.cc.o
+.PHONY : src/job/shell.cc.o
+
+src/job/shell.i: src/job/shell.cc.i
+.PHONY : src/job/shell.i
+
+# target to preprocess a source file
+src/job/shell.cc.i:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/shell.cc.i
+.PHONY : src/job/shell.cc.i
+
+src/job/shell.s: src/job/shell.cc.s
+.PHONY : src/job/shell.s
+
+# target to generate assembly for a file
+src/job/shell.cc.s:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/shell.cc.s
+.PHONY : src/job/shell.cc.s
+
 src/tinyshell.o: src/tinyshell.cc.o
 .PHONY : src/tinyshell.o
 
@@ -320,6 +392,15 @@ help:
 	@echo "... src/external.o"
 	@echo "... src/external.i"
 	@echo "... src/external.s"
+	@echo "... src/job/bgcmd.o"
+	@echo "... src/job/bgcmd.i"
+	@echo "... src/job/bgcmd.s"
+	@echo "... src/job/fgcmd.o"
+	@echo "... src/job/fgcmd.i"
+	@echo "... src/job/fgcmd.s"
+	@echo "... src/job/shell.o"
+	@echo "... src/job/shell.i"
+	@echo "... src/job/shell.s"
 	@echo "... src/tinyshell.o"
 	@echo "... src/tinyshell.i"
 	@echo "... src/tinyshell.s"

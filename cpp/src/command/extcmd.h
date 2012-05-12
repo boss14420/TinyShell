@@ -44,16 +44,19 @@ public:
     virtual ~CommandExecuteException() throw() {}
 };
 
+class ChildProcessStopped : public std::exception {};
+
 class ExternalCommand : public Command {
     char *path;
     wordexp_t options;
     bool foreground;
+    std::string cmdstr;
 
 //    static std::deque<std::string> split(std::string str);
 public:
     ExternalCommand() : path(0) {}
-    ExternalCommand(char * p, wordexp_t * o, bool f) 
-        : path(p), options(*o), foreground(f) {}
+    ExternalCommand(char * p, wordexp_t * o, bool f, std::string s) 
+        : path(p), options(*o), foreground(f), cmdstr(s) {}
 
     virtual ~ExternalCommand() {
 #ifndef NDEBUG

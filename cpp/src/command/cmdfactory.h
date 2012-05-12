@@ -62,9 +62,11 @@ class NullCommand : public std::exception {
 };
 
 class CommandFactory {
-    char* pathLookup(std::string const& file);
+    char* pathLookup(std::string const& file) const;
 public:
-    Command* parseCommand(std::string cmdstr);
+    Command* parseCommand(std::string cmdstr) const;
+    int execute_command(std::string cmdstr) const;
+    int execute_script(char const* filename) const;
 };
 
 #endif

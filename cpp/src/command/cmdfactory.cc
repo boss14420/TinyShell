@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 
 #include <utility>
+#include <fstream>
 
 #ifdef _ENABLE_REDIRECT_
 std::string nextWord();
@@ -203,17 +204,48 @@ Command* CommandFactory::parseCommand(std::string const& cmdstr) {
 }
 
 #else
-Command* CommandFactory::parseCommand(std::string cmdstr) {
+Command* CommandFactory::parseCommand(std::string cmdstr) const {
+
+    // find first non-quote comment sign (#)
+    size_t const npos = std::string::npos;
+    size_t new_size = 0;
+    size_t singlequote = npos, doublequote = npos;
+    for(new_size = 0; new_size < cmdstr.size(); ++new_size) {
+        if( (cmdstr[new_size] == '#') && 
+                (singlequote == npos) && (doublequote == npos) )
+            break;
+
+        if(cmdstr[new_size] == '\'') {
+            if(singlequote != npos) {
+                if(doublequote > singlequote)
+                    doublequote = npos;
+                singlequote = npos;
+            } else
+                singlequote = new_size;
+        } else if(cmdstr[new_size] == '"') {
+            if(doublequote != npos) {
+                if(singlequote > doublequote)
+                    singlequote = npos;
+                doublequote = npos;
+            } else
+                doublequote = new_size;
+        }
+    }
+    // remove comment
+    cmdstr.resize(new_size);
 
     // Check for background sign '&'
     bool foreground = true;
     auto si = cmdstr.rbegin();
+    new_size = cmdstr.size();
     for(; si != cmdstr.rend() && 
-            (*si == ' ' || *si == '\t'); ++si);
+            (*si == ' ' || *si == '\t'); ++si, --new_size);
     if(*si == '&') {
         foreground = false;
-        cmdstr.erase(si.base());
+//        cmdstr.erase(si.base());
+        --new_size;
     }
+    cmdstr.resize(new_size);
 
     // word expansion
     wordexp_t options;
@@ -236,8 +268,8 @@ Command* CommandFactory::parseCommand(std::string cmdstr) {
     if(BuiltInCommand::hasCommand(first_word)) {
         switch(BuiltInCommand::getCommand(first_word)) {
             case BuiltInCommand::HISTORY:
-                return new HistoryCommand();
                 wordfree(&options);
+                return new HistoryCommand();
                 break;
             case BuiltInCommand::KILL:
                 wordfree(&options);
@@ -248,11 +280,18 @@ Command* CommandFactory::parseCommand(std::string cmdstr) {
             case BuiltInCommand::HELP:
                 wordfree(&options);
                 break;
+            case BuiltInCommand::JOBS:
+                wordfree(&options);
+                return new JobsCommand;
+            case BuiltInCommand::FG:
+                return new ForegroundCommand(&options, cmdstr);
+            case BuiltInCommand::BG:
+                return new BackgroundCommand(&options, cmdstr);
         }
     } else {
         char * path = pathLookup(first_word);
         if(path) {
-            return new ExternalCommand(path, &options, foreground);
+            return new ExternalCommand(path, &options, foreground, cmdstr);
         } else {
             wordfree(&options);
             throw BadCommandException(first_word);
@@ -325,7 +364,7 @@ done:
 }
 #endif
 
-char * CommandFactory::pathLookup(std::string const& file) {
+char * CommandFactory::pathLookup(std::string const& file) const{
     char* filepath = NULL;
     struct stat st;
     
@@ -373,3 +412,66 @@ char * CommandFactory::pathLookup(std::string const& file) {
     }
     return NULL;
 }
+
+
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  execute_command
+ *  Description:  
+ * =====================================================================================
+ */
+int CommandFactory::execute_command(std::string cmdstr) const {
+    Command *cmd = NULL;
+
+    try {
+        cmd = parseCommand(cmdstr);
+        cmd->execute();
+    } catch(CommandExecuteException &ex) {
+        std::fprintf(stderr, "%s\n", ex.what());
+        std::exit(EXIT_FAILURE); // exit child process
+    } catch(NullCommand ) {
+    } catch (std::exception &ex) {
+        std::fprintf(stderr, "%s\n", ex.what());
+        delete cmd;
+        return EXIT_FAILURE;
+    }
+    delete cmd;
+    return EXIT_SUCCESS;
+}
+/* ---------- end of function execute_command ------------------------ */
+
+
+/*
+ * ===  FUNCTION  ======================================================================
+ *         Name:  execute_script
+ *  Description:
+ * =====================================================================================
+ */
+
+int CommandFactory::execute_script (char const* filename ) const{
+//    std::ifstream ifs;
+//    try {
+//        ifs.open(filename);
+//        ifs.exceptions(std::ifstream::badbit | std::ifstream::failbit
+//                        | std::ifstream::eofbit);
+//    } catch(std::exception& ex) {
+//        std::cerr << ex.what() << '\n';
+//        return EXIT_FAILURE;
+//    }
+
+    std::ifstream ifs(filename);
+    if(!ifs) {
+        std::perror(filename);
+        return EXIT_FAILURE;
+    }
+
+    std::string cmdstr;
+    while(!ifs.eof()) {
+        std::getline(ifs, cmdstr);
+        execute_command(cmdstr);
+    }
+    ifs.close();
+    return EXIT_SUCCESS;
+}
+/* -----  end of function execute_script  ----- */

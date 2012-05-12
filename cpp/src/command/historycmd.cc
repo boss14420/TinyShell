@@ -34,7 +34,7 @@ int HistoryCommand::execute() const {
         HIST_ENTRY *hist = lst_hist[0];
         size_t n = 0;
         for(; hist; hist = lst_hist[++n]) {
-            std::printf("%3u. %s\n", n+1, hist->line);
+            std::printf("%3lu. %s\n", n+1, hist->line);
         }
         std::fflush(stdout);
     }

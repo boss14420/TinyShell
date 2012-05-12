@@ -40,6 +40,9 @@ public:
 
     BuiltInCommand() {}
 //    BuiltInCommand(std::string const& cmdstr) : Command(cmdstr) {}
+
+    virtual ~BuiltInCommand() {}
+
     virtual int execute() const = 0;
 
     static bool hasCommand(std::string const& cmd) {
@@ -50,7 +53,7 @@ public:
         return builtins[cmd];
     }
 
-    enum CommandType { HISTORY, KILL, CHDIR, HELP, BATCH };
+    enum CommandType { HISTORY, KILL, CHDIR, HELP, JOBS, FG, BG};
 //    static const int HISTORY = 1;
 //    static const int KILL = 2;
 //    static const int CHDIR = 3;

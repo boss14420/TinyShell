@@ -18,10 +18,15 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-int main() {
+int main(int argc, char *argv[]) {
+    int tm = 2;
+    if(argc == 2)
+        tm = atoi(argv[1]);
+
     printf("Sleeping...\n");
-    sleep(2);
+    sleep(tm);
     printf("Waked!\n");
 
     return 0;
