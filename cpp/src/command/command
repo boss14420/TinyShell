@@ -1,17 +1,21 @@
 #ifndef _COMMAND_
 #define _COMMAND_
 
+#define GET_VERSION "0.1"
+
 #include "command.h"
 #include "extcmd.h"
 #include "historycmd.h"
 #include "builtin.h"
 #include "chdircmd.h"
+#include "helpcmd.h"
 
 #include "cmdfactory.h"
 
 #include "../job/jobcmd.h"
 #include "../job/fgcmd.h"
 #include "../job/bgcmd.h"
+#include "../job/kill.h"
 
 #endif
 
