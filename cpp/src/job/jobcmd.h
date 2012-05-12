@@ -35,6 +35,15 @@ public:
     }
 
     virtual std::string command() const { return "jobs"; }
+
+    static std::string helpString() {
+        return "jobs"
+            "\n Display status of all jobs\n";
+    }
+
+    static std::string descriptionString() {
+        return "Display status of all jobs";
+    }
 };
 
 #endif

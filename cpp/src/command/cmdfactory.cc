@@ -271,15 +271,11 @@ Command* CommandFactory::parseCommand(std::string cmdstr) const {
                 wordfree(&options);
                 return new HistoryCommand();
                 break;
-            case BuiltInCommand::KILL:
-                wordfree(&options);
-                break;
             case BuiltInCommand::CHDIR:
                 return new ChdirCommand(&options);
                 break;
             case BuiltInCommand::HELP:
-                wordfree(&options);
-                break;
+                return new HelpCommand(&options);
             case BuiltInCommand::JOBS:
                 wordfree(&options);
                 return new JobsCommand;
@@ -287,10 +283,14 @@ Command* CommandFactory::parseCommand(std::string cmdstr) const {
                 return new ForegroundCommand(&options, cmdstr);
             case BuiltInCommand::BG:
                 return new BackgroundCommand(&options, cmdstr);
+            default:
+                return NULL;
         }
     } else {
         char * path = pathLookup(first_word);
         if(path) {
+            if(first_word == "kill")
+                return new KillCommand(path, &options, foreground, cmdstr);
             return new ExternalCommand(path, &options, foreground, cmdstr);
         } else {
             wordfree(&options);

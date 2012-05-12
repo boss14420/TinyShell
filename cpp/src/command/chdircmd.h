@@ -35,6 +35,15 @@ class ChdirCommand : public BuiltInCommand {
         virtual ~ChdirCommand() {
             wordfree(&options);
         }
+
+        static std::string helpString() {
+            return "cd [DIR]\n"
+                "Change the shell working directory to DIR\n";
+        }
+
+        static std::string descriptionString() {
+            return "Change the shell working directory.";
+        }
 };
 
 //char ChdirCommand::old_dir[1024] = {'\0'};

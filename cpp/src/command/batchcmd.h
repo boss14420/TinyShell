@@ -22,7 +22,7 @@
 #include "builtin.h"
 #include <string>
 
-class BatchCommandException : public BuildInCommandException {};
+class BatchCommandException : public BuiltInCommandException {};
 
 class BatchCommand : public BuiltInCommand {
     std::string batchfile;

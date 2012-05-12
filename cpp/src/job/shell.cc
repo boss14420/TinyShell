@@ -112,7 +112,7 @@ void Shell::sigchld_handler ( int ) {
  * =====================================================================================
  */
 void Shell::report_finished_job (  ) {
-    jobList.remove_if([](Job const& j) { 
+    jobList.remove_if([](Job const& j) -> bool { 
             if(j.status == Job::FINISH) {
                 std::cerr << j << std::endl;
                 return true;

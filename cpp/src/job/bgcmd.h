@@ -28,6 +28,17 @@ public:
     BackgroundCommand(wordexp_t *o,  std::string s);
     virtual ~BackgroundCommand();
     virtual int execute() const;
+
+    static std::string helpString() {
+        return "bg [JOB_ID ...]"
+            "\nMove jobs JOB_ID ... to the background."
+            "\n\nIf JOB_ID is not specified, move the default job "
+            "(job with '+' when list by \"jobs\" command) to the background.\n";
+    }
+
+    static std::string descriptionString() {
+        return "Move jobs list to the background";
+    }
 private:
     wordexp_t options;
     std::string cmdstr;

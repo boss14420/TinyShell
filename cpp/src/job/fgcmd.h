@@ -27,6 +27,17 @@ public:
     ForegroundCommand(wordexp_t *o,  std::string s);
     virtual ~ForegroundCommand();
     virtual int execute() const;
+
+    static std::string helpString() {
+        return "fg [JOB_ID]"
+            "\n Move the job JOB_ID to the foreground."
+            "\n\nIf JOB_ID is not specified, move the default job "
+            "(job with '+' when list by \"jobs\" command) to the foreground.\n";
+    }
+
+    static std::string descriptionString() {
+        return "Move job to the foreground.";
+    }
 private:
     wordexp_t options;
     std::string cmdstr;

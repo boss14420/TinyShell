@@ -31,7 +31,7 @@ ForegroundCommand::ForegroundCommand(wordexp_t *o, std::string s)
     else if(options.we_wordc == 2)
         jobid = std::atoi(options.we_wordv[1]);
     else 
-        throw BuildInCommandException("fg: Invalid arguments");
+        throw BuiltInCommandException("fg: Invalid arguments");
 }
 
 ForegroundCommand::~ForegroundCommand() {
@@ -41,7 +41,7 @@ ForegroundCommand::~ForegroundCommand() {
 int ForegroundCommand::execute() const {
     Shell::job_iter j = Shell::findJobById(jobid);
     if(j == Shell::end())
-        throw BuildInCommandException(cmdstr + ": no such job");
+        throw BuiltInCommandException(cmdstr + ": no such job");
 
     Shell::moveToForeground(j);
     return 0;

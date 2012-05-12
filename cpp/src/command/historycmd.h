@@ -34,21 +34,14 @@ public:
     virtual int execute() const;
     virtual std::string command() const { return "history"; }
 
-/*     static void historyAdd(shared_ptr<Command> const& cmd) {
- *         history.push_back(cmd);
- *     }
- * 
- *     typedef std::deque<shared_ptr<Command>>::const_iterator const_iterator;
- * 
- *     inline static const_iterator cend() {
- *         return history.cend();
- *     }
- * 
- *     inline static const_iterator cbegin() {
- *         return history.cbegin();
- *     }
- */
+    static std::string helpString() {
+        return "history"
+            "\nDisplay the history list.\n";
+    }
 
+    static std::string descriptionString() {
+        return "Display the history list.";
+    }
 };
 #endif
 

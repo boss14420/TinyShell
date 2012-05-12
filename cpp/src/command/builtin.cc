@@ -22,6 +22,6 @@
 typedef std::pair<std::string, BuiltInCommand::CommandType> PSI;
 
 std::unordered_map<std::string, BuiltInCommand::CommandType> BuiltInCommand::builtins(
-        { {"history", HISTORY}, {"killjob", KILL}, {"cd", CHDIR},
+        { {"history", HISTORY}, {"cd", CHDIR},
             {"help", HELP}, {"jobs", JOBS}, {"fg", FG}, {"bg", BG} } );
 

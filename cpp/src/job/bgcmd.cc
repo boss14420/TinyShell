@@ -52,7 +52,7 @@ int BackgroundCommand::execute() const {
             else 
                 ss << "bg: no such job";
 
-            throw BuildInCommandException(ss.str());
+            throw BuiltInCommandException(ss.str());
         }
         else iterList[i] = j;
     }

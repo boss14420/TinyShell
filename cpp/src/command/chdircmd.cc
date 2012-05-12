@@ -17,14 +17,14 @@ int ChdirCommand::execute() const {
             return -1;
     }
 
-    getcwd(old_dir, 1024);
+    (void) getcwd(old_dir, 1024);
 
     int r = chdir(new_dir);
     if(-1 == r) {
         std::string errstr(new_dir);
         if(needfree)
             delete[] new_dir;
-        throw BuildInCommandException(errstr + " : " + strerror(errno));
+        throw BuiltInCommandException(errstr + " : " + strerror(errno));
     }
     if(needfree)
         delete[] new_dir;

@@ -23,17 +23,19 @@
 #include <unordered_map>
 #include <utility>
 
-class BuildInCommandException : public std::exception {
+class BuiltInCommandException : public std::exception {
     std::string strerr;
 public:
-//    BuildInCommandException(int error, char const *file) 
+//    BuiltInCommandException(int error, char const *file) 
 //        : strerr(std::string(file) + " : " + strerror(error)) {}
-    BuildInCommandException(std::string const& str) : strerr(str) {}
+    BuiltInCommandException(std::string const& str) : strerr(str) {}
     virtual const char* what() const throw() {
         return strerr.c_str();
     }
-    virtual ~BuildInCommandException() throw() {}
+    virtual ~BuiltInCommandException() throw() {}
 };
+
+class HelpCommand;
 
 class BuiltInCommand : public Command {
 public:
@@ -49,15 +51,17 @@ public:
         return builtins.find(cmd) != builtins.end();
     }
 
-    static int getCommand(std::string const& cmd) {
+    enum CommandType { HISTORY, CHDIR, HELP, JOBS, FG, BG, OTHER};
+
+    static CommandType getCommand(std::string const& cmd) {
         return builtins[cmd];
     }
 
-    enum CommandType { HISTORY, KILL, CHDIR, HELP, JOBS, FG, BG};
 //    static const int HISTORY = 1;
 //    static const int KILL = 2;
 //    static const int CHDIR = 3;
 //    static const int HELP = 4;
+    friend class HelpCommand;
 
 private:
     static std::unordered_map<std::string, CommandType> builtins;
