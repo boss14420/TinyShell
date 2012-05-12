@@ -226,9 +226,7 @@ char * get_shell_promt(char * src) {
 }
 
 int start_shell() {
-//    static int count = 0;
-//
-//    std::fprintf(stderr, "start shell % d\n", ++count);
+    std::printf("\t\tTiny Shell, version %s\n\n", GET_VERSION);
 
     std::string strcmd;
     shared_ptr<Command> cmd;
