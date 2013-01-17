@@ -3,7 +3,9 @@
 \usepackage{xcolor}
 \usepackage{color}
 \usepackage[unicode]{hyperref}
+\usepackage[nottoc,numbib]{tocbibind}
 \hypersetup{colorlinks=true, urlcolor=green, linkcolor=black, unicode=true}
+\usepackage[utf8]{inputenc}
 \usepackage[utf8]{vietnam}
 \usepackage{latexsym, amsfonts, amssymb, amsmath}
 \usepackage[margin=2.2cm]{geometry}
@@ -35,12 +37,12 @@
 %\hspace{5cm}  Đề tài 10 : Đường đi ngắn nhất trên đồ thị
 \begin{flushright}
     \parbox[t]{8cm}{
-    \textbf{Nguyễn Duy Thành-}CNTT1 20102737\\}%[12pt]
+    \textbf{Nguyễn Duy Thành - }CNTT1 20102737\\}%[12pt]
     %\textbf{Vũ Văn Hiệp-}CNTT2 20101545}\\[12pt]
     %\textbf{Bạch Văn Hải-}CNTT1 20101464}\\[12pt]
 \end{flushright}
 
-\hspace{5cm} Giáo viên\hspace{24pt} :
+\hspace{5cm} Giáo viên hướng dẫn\hspace{24pt} :
 \begin{flushright} \textbf{\parbox[t]{8cm}{    
         \textcolor[rgb]{0.00,0.00,1.00}{Phạm Đăng Hải}
         }}
@@ -56,16 +58,18 @@
     \tableofcontents
     \newpage
 \chapter{Lời nói đầu}
+    Trong bản báo cáo này, em sẽ trình bày về chương trình shell đơn giản
+    \texttt{Tiny Shell} và một số bài tập môn hệ điều hành khác. Những bài tập
+    khác không trình bày ở đây nhưng vẫn có code ở file đính kèm.\\
+    Những chương trình C/C++ kèm theo được biên dịch trên hệ điều hành Linux 64
+    bit nên có thể phải biên dịch lại nếu không tương thích.\\
 
+    Dù đã rất cố gắng nhưng do khả năng còn hạn chế nên không thể không có sai sót, rất
+    mong được thầy tận tình chỉ bảo. Em xin chân thành cảm ơn!\\
     \begin{center}
         Sinh viên thực hiện:
+        \parbox[t]{4cm}{Nguyễn Duy Thành \\ Email: boss14420@gmail.com}
     \end{center}
-
-    \begin{flushright}
-        \parbox[t]{4cm}{Nguyễn Duy Thành \\}
-        %Vũ Văn Hiệp\\
-        %Bạch Văn Hải}
-    \end{flushright}
 
 
 
@@ -91,35 +95,47 @@
 
         Chương trình được viết bằng ngôn ngữ C++, theo chuẩn C++11.
 
-        \subsection{Hướng dẫn biên dịch và cài đặt}
-        Yêu cầu:
+        \subsection{Hướng dẫn cài đặt}
+
+        \textbf{Yêu cầu}
         \begin{itemize}
             \item Hệ điều hành: tương thích \texttt{POSIX}, với MS-Windows có thể cài
                 CygWin để hỗ trợ \texttt{POSIX},
             \item \texttt{cmake} >= 2.6: để sinh \texttt{makefile}. Download ở \\
                 \href{http://www.cmake.org/cmake/resources/software.html}{\texttt{http://www.cmake.org/cmake/resources/software.html}}.\\
                 Với Linux có thể cài đặt qua các \texttt{package manager}
-            \item thư viện \texttt{GNU readline}, với hầu hết cả \texttt{Linux
-                distro} hiện nay thì thư viện này đã được cài đặt sẵn,
-            \item trình dịch: tốt nhất là \texttt{gcc 4.7}, với các trình dịch
+            \item thư viện \texttt{GNU readline},             
+	    \item trình dịch: tốt nhất là \texttt{gcc >= 4.6}, với các trình dịch
                 khác cần phải sửa file \texttt{CMakeLists.txt}.
         \end{itemize}
 
-        Biên dịch:
+        \textbf{Với các Linux distro họ Debian (Debian, Ubuntu, Mint, ...)}:
+            Cài đặt một trong những gói phần mềm (file .deb) đi kèm, tuỳ loại
+            kiến trúc là 32bit và 64bit.\\
+            Ví dụ \texttt{Ubuntu 32bit}, nháy đúp chuột vào file
+            \texttt{tinyshell\_0.1-1\_i386.deb} để vào chương trình cài đặt
+            gói, hoặc dùng lệnh:
+                \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ sudo dpkg -i tinyshell_0.1-1_i386.deb
+                \end{minted}
+
+        \textbf{Với các hệ điều hành khác}:
+            Cần phải biên dịch lại từ mã nguồn. Các bước tiến hành như sau:
         \begin{enumerate}
             \item \textbf{Sinh \texttt{Makefile}}: vào thư mục gốc của mã nguồn
                 \texttt{Tinyshell}, gõ lệnh:
-                \begin{verbatim}
-cmake CMakeLists.txt
-                \end{verbatim}
+                \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ cmake CMakeLists.txt
+                \end{minted}
                 Nếu có lỗi xảy ra thì có nghĩa là một số thư viện cần thiết
                 chưa được cài đặt.
-            \item \textbf{Biên dịch}, gõ lệnh:
-                \begin{verbatim}
-                make
-                \end{verbatim}
-                file thực thi \texttt{tinyshell} sẽ được sinh ra trong thư mục
-                gốc của thư mục mã nguồn.
+            \item \textbf{Biên dịch và cài đặt}, gõ lệnh:
+                \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ make
+$ sudo make install # can quyen root
+                \end{minted}
+                file thực thi \texttt{tinyshell} sẽ được tạo ra và sao chép vào
+                thư mục \texttt{/usr/bin}.
         \end{enumerate}
 %==========================finish Chuong I===========================
 
@@ -127,9 +143,9 @@ cmake CMakeLists.txt
 %-------------section 2.1 -------------------------------------------
     \section{Khởi động chương trình}
     Mở chương trình, gõ lệnh:
-    \begin{verbatim}
-./tinyshell
-    \end{verbatim}
+    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ tinyshell
+    \end{minted}
     \begin{figure}
         \centering
         \includegraphics[scale=0.7]{ts1}
@@ -140,41 +156,45 @@ cmake CMakeLists.txt
 
     Từ \texttt{bash} shell(mặc định trên Linux) sẽ chuyển sang tinyshell. Hình
     \ref{fig:ts1}. Dấu nhắc lệnh của \texttt{Tiny Shell} có dạng
-    \texttt{<username>:<current working directory \$}, nếu $username$ có là $root$ thì
+    \texttt{<username>:<current working directory> \$}, nếu $username$ có $root$ thì
     kết thúc dấu nhắc lệnh là \#.
+
+    Để kết thúc \texttt{Tiny Shell}, dùng tổ hợp phím \texttt{Ctrl+D} hoặc gõ
+    lệnh \texttt{quit}.
 
     %-------------section 2.2 -------------------------------------------
     \section{Gọi lệnh}
     Với \texttt{Tiny Shell}, ta có thể gõ lệnh bình thường như các
     \textit{shell} khác:
-    \begin{verbatim}
-$ ls -liah # thực thi chương trình ngoài
-$ ./abc.py # thực thi file script python
-    \end{verbatim}
+    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ ls -liah # thuc thi chuong trinh ngoai
+$ ./abc.py # thuc thi file script python
+    \end{minted}
 
     Chú ý:
     \begin{itemize}
         \item Nếu ghi đường dẫn (tương đối hoặc tuyệt đối) thì \texttt{Tiny
             Shell} sẽ tìm kiếm file thực thi trong các thư mục được lưu
-            trong biến môi trường $PATH$. VD: với $PATH =
-            /usr/bin/:/bin:/usr/local/bin$ thì \texttt{Tiny Shell} sẽ tìm
+            trong biến môi trường \texttt{PATH}. \\
+            VD: với \texttt{PATH = /usr/bin/:/bin:/usr/local/bin} \\
+            thì \texttt{Tiny Shell} sẽ tìm
             kiếm file thực thi trong các thư mục \texttt{/usr/bin/},
             \texttt{/bin}, \texttt{/usr/local/bin}.
         \item Nếu không tìm thấy file thực thi thì \texttt{Tiny Shell} sẽ
-            báo lỗi $bad command$.
+            báo lỗi \texttt{bad command}.
         \item Chỉ có nhưng file có \texttt{execute permission} mới có quyền
             thực thi. VD, với file có \texttt{permission/mode} là 422
             ($---x-w--w-$) thì chỉ có \texttt{owner} của file mới được thực
             thi. Những người dùng khác nếu thực thi file này sẽ bị báo lỗi
-            $permission denied$.
+            \texttt{permission denied}.
             chỉ có \texttt{owner} của file mới được quyền thực thi.
         \item File script phải bắt đầu bằng 2 kí tự \texttt{sha-bang (\#!)},
             tiếp theo là câu lệnh (có thể có cả tham số) để thực hiện
             chương trình đó. Chẳng hạn, một python script phải có dòng đầu
             tiên là:\\
-            \begin{verbatim}
-            #!/usr/bin/env python
-            \end{verbatim}
+            \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+#!/usr/bin/env python
+            \end{minted}
     \end{itemize}
 
     Để bắt buộc chương trình kết thúc, dùng tổ hợp phím \texttt{Ctrl+C}
@@ -187,30 +207,32 @@ $ ./abc.py # thực thi file script python
     \section{Lệnh nâng cao}
     \texttt{Tiny Shell} sử dụng hàm \texttt{wordexp} của \texttt{libc}
     nên có thể thực hiện được một số thay thể các từ mà người dùng nhập vào
-    tương tự \texttt{bash shell}. \citep{LCWE}. Ví dụ:
-    \begin{verbatim}
-$ # liệt kê thư mục gốc của người dùng boss14420
+    tương tự \texttt{bash shell}. \cite{LCWE}. Ví dụ:
+    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ # liet ke thu muc goc cua nguoi dung boss14420
 $ ls ~boss14420
 ...
-$ # xem biến môi trường $PATH
+$ # xem bien moi truong $PATH
 $ echo $PATH
 ...
-$ # Phép tính số học
+$ # Phep tinh so hoc
 $ echo $(( 2*3 ))
 ...
-$ # liệt kê những file có phần mở rộng là .c
+$ # tam dung tien trinh firefox
+$ kill -STOP `pidof firefox`
+...
+$ # liet ke nhung file co phan mo rong la .c
 $ ls *.c
-$ # xoá những file có dạng abc.<chữ số> trong thư mục
+$ # xoa nhung file co dang abc.<chu so> trong thu muc
 $ rm abc.[0-9]
-    \end{verbatim}
-        
-    Xem thêm ở phần \href{http://www.gnu.org/software/libc/manual/html_node/Word-Expansion.html#Word-Expansion}{\texttt{Word expansion}} của \texttt{libc manual}.\\
+    \end{minted}
+(Chú ý, kí tự ` tương ứng với phím ở bên trái phím số 1 trên bàn phím).
 
 %-------------section 2.4 -------------------------------------------
     \section{Job control}
     \label{sec:jobcontrol}
     \texttt{Tiny Shell} có một số tính năng của một \texttt{Job Control}
-    shell \citep{LCJC}.
+    shell \cite{LCJC}.
         \subsection{Background/foreground}
 	    Một chương trình được gọi từ \texttt{Tiny Shell} có thể thực thi
 	    theo hai chế độ : chế độ hiện (\texttt{foreground}) và chế độ nền
@@ -223,7 +245,7 @@ $ rm abc.[0-9]
 	    người dùng nhưng vẫn có thể xuất dữ liệu ra ngoài. Để chạy chương
 	    trình ở chế độ nền thì thêm \texttt{\&} ở cuối câu lệnh. Ví dụ:
 	
-	    \begin{verbatim}
+	    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
 $ ./external 
 Sleeping...
 Waked!
@@ -232,23 +254,24 @@ $ ./external &
 $ Sleeping...
 
 $ ls
-autogen.sh          CMakeFiles      CMakeLists.txt  configure.ac    example.bat~  
-executable.cpp      external        Makefile.am     tinyshell       CMakeCache.txt  
-cmake_install.cmake CMakeLists.txt~ example.bat     executable      executable.cpp~  
-Makefile            src
+autogen.sh      CMakeFiles      CMakeLists.txt  configure.ac    
+example.bat~    executable.cpp  external        Makefile.am     
+tinyshell       CMakeCache.txt  cmake_install.cmake 
+CMakeLists.txt~ example.bat     executable      executable.cpp~  
+Makefile        src
 $ Waked!
 
 [1]     Done            ./external 
 $ 
-	    \end{verbatim}
+	    \end{minted}
 	
         \subsection{Liệt kê các tiến trình nền}
 	    Dùng lệnh \texttt{jobs} để liệt kê các tiến trình nền đang chạy.
 	    Nội dung kết quả gồm nhiều dòng, một dòng tương ứng một tiến trình
 	    nền, có dạng:
-	    \begin{verbatim}
-	    [<id>]<default>      <status>         <command>
-	    \end{verbatim}
+	    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+[<id>]<default>      <status>         <command>
+	    \end{minted}
 	    Trong đó:
 	    \begin{itemize}
 	        \item \texttt{<id>} là chỉ số của tiến trình, dùng để phân biệt
@@ -268,7 +291,7 @@ $
 	    \end{itemize}
 	
 	    Ví dụ:
-	    \begin{verbatim}
+	    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
 $ vim
 [1]+    Stopped         vim
 $ less example.bat
@@ -281,7 +304,7 @@ $ jobs
 [2]+    Stopped         less example.bat
 [3]     Running         ./external 6 
 $
-	    \end{verbatim}
+	    \end{minted}
 	
         \subsection{Chuyển từ \texttt{foreground} sang
 	    \texttt{background}}
@@ -308,16 +331,16 @@ $
 	    Sau đó, đưa tiến trình về chế độ \texttt{background} và tiếp
 	    tục tiến trình, dùng lệnh \texttt{bg}. Cú pháp lệnh \texttt{bg}
 	    như sau:
-	    \begin{verbatim}
-	    bg [job_id ...]
-	    \end{verbatim}
+	    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+bg [job_id ...]
+	    \end{minted}
 	    Trong đó, \texttt{job\_id} là danh sách chỉ số của các tiến
 	    trình (đã bị tạm dừng) muốn đưa về chế độ nền. Nếu không chỉ ra
 	    \texttt{job\_id} thì tiến trình được chọn sẽ là tiến trình mặc
 	    định (tức tiến trình có kèm theo dấu '+' trong kết quả liệt kê
 	    bằng lệnh \texttt{jobs}. Một tiến trình sẽ trở thành tiến trình
 	    mặc định khi nó là tiến trình gần nhất bị tạm dừng. Ví dụ:
-	    \begin{verbatim}
+	    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
 $ mpg123 "abcde.mp3"
 High Performance MPEG 1.0/2.0/2.5 Audio Player for Layers 1, 2 and 3
 version 1.14.1; written and copyright by Michael Hipp and others
@@ -332,31 +355,55 @@ Album:   NhacCuaTui.Com
 Year:    2011                            Genre:  The Loai Khac
 ^Z[2]+  Stopped         mpg123 "abcde.mp3"
 $ bg
-$ # làm công việc khác trong khi mpg123 vẫn tiếp tục chơi nhạc
-	    \end{verbatim}
+$ # lam cong viec khac trong khi mpg123 van tiep tuc choi nhac
+	    \end{minted}
 	
-	    \subsection{Chuyển tiến trình sang \texttt{foreground}}
+        \subsection{Chuyển tiến trình sang \texttt{foreground}}
 	    Ngược lại với phần trên, giả sử có những chương trình đang chạy ở
 	    \texttt{background} hoặc chương trình đang tạm dừng muốn chuyển về
 	    \texttt{foreground}. Ta có câu lệnh \texttt{fg}
-	    \begin{verbatim}
+	    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
 	    fg [job_id]
-	    \end{verbatim}
+	    \end{minted}
 	
 	    Trong đó \texttt{job\_id} là chỉ số của tiến trình muốn chuyển về
 	    \texttt{foreground}. Nếu không chỉ ra \texttt{job\_id} thì chọn
 	    tiến trình mặc định (tương tự lệnh \texttt{fg}). Ví dụ:
-	    \begin{verbatim}
-$ # dùng vim để soạn thảo mã nguồn
+	    \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ # dung vim de soan thao ma nguon
 $ vim source.c
 [1]+    Stopped         vim source.c
-$ # tạm dừng để biên dịch và chạy thử
+$ # tam dung de bien dich va chay thu
 $ gcc source.c -o source -Wall -O2
 $ ./source
 ...
-$ # tiếp tục sửa file source.c
+$ # tiep tuc sua file source.c
 $ fg
-	    \end{verbatim}
+	    \end{minted}
+
+        \subsection{Kết thúc một tiến trình}
+            \texttt{Tiny Shell} cung cấp lệnh \texttt{kill} dùng để gửi một
+            \texttt{tín hiệu (signal)} đến một tiến trình. Chức năng của lệnh
+            \texttt{kill} giống như lệnh \texttt{kill} của \texttt{GNU Biutils}
+            nhưng có thêm tính năng gửi \texttt{signal} đến các tiến trình
+            \texttt{nền} của \texttt{Tiny Shell} dựa trên \texttt{job\_id}
+            (bằng cách thêm \texttt{\%} vào trước chỉ số) thay
+            vì \texttt{pid}. Ví dụ:
+            \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ ./external 10 &
+$ Sleeping...
+
+$ jobs
+[1]     Running         ./external 10 
+$ kill %1
+[1]     Done            ./external 10 
+$ 
+$ # Tiep tuc tien trinh khac
+$ kill -CONT `pidof firefox`
+$
+            \end{minted}
+            Thông tin về cú pháp của lệnh \texttt{kill} xem thêm ở
+            \texttt{manual} (dùng lệnh \texttt{man 1 kill}).
 
 %-------------section 2.5 -------------------------------------------
     \section{Một số tiện ích khi gõ lệnh}
@@ -383,7 +430,7 @@ $ fg
         \begin{itemize}
             \item Để hiển thị tất cả các câu lệnh đã thực thi, dùng lệnh
                 \texttt{history}
-                \begin{verbatim}
+                \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
 $ ls
 ...
 $ shfdjskj
@@ -391,7 +438,7 @@ $ history
 1. ls
 2. shfdjskj
 $
-                \end{verbatim}
+                \end{minted}
             \item Dùng các phím mũi tên lên/xuống để thay câu lệnh đang gõ dỡ
                 bằng các câu lệnh trước/sau.
             \item Để thực hiện câu lệnh thứ $n$ trong \texttt{history}, dùng
@@ -411,12 +458,56 @@ $
         Tất cả nhưng kí tự kể từ \texttt{\#} (không nằm trong dấu nháy đơn
         hoặc nháy kép) cho đến kết thúc dòng đều được \texttt{Tiny Shell}
         bỏ qua:
-        \begin{verbatim}
-$ # Đây là một comment
-$ echo " đây # không phải là một comment "
-đây # không phải là một comment
+        \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ # Day la mot comment
+$ echo " day # khong phai la mot comment "
+day # khong phai la mot comment
 $
-        \end{verbatim}
+        \end{minted}
+
+%-------------section 2.6 --------------------------------------------
+    \section{Các lệnh có sẵn của\texttt{Tiny Shell}} 
+        Ngoài các lệnh \texttt{kill, history, fg, bg, jobs} đã đề cập,
+        \texttt{Tiny Shell} còn tích hợp một số lệnh khác:
+        
+        \subsection{Thay đổi thư mục hiện tại - lệnh \texttt{cd}}
+            Cú pháp lệnh cd như sau:
+            \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+cd [new_dir]
+            \end{minted}
+            \texttt{new\_dir} là thư mục sẽ chuyển đến.\\
+            Trong đó:
+            \begin{itemize}
+                \item Nếu không chỉ ra \texttt{new\_dir} thì sẽ chuyển đến thư
+                    mục gốc của người dùng hiện tại,
+                \item Nếu \texttt{new\_dir} là \texttt{\-} thì thư mục được
+                    chuyển tới là thư mục trước đó (thư mục trước khi chuyển
+                    đến thư mục hiện tại),
+                \item Nếu \texttt{new\_dir} là \texttt{..} thì chuyển đến thư
+                    mục cha của thư mục hiện tại
+            \end{itemize}
+            Ví dụ:
+            \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+boss14420:/media/DATA/Music $ cd ../Video
+boss14420:/media/DATA/Video $ 
+boss14420:/media/DATA/Video $ # Ve thu muc goc
+boss14420:/media/DATA/Video $ cd
+boss14420:/home/boss14420 $
+boss14420:/home/boss14420 $ # Den thu muc cha
+boss14420:/home/boss14420 $ cd ..
+boss14420:/home $
+boss14420:/home $ # tro ve thuc muc goc
+boss14420:/home $ cd -
+boss14420:/home/boss14420 $
+            \end{minted}
+
+        \subsection{Xem thông tin về các lệnh khác - lệnh \texttt{help}}
+            Để xem danh sách tất cả các lệnh tích hợp sẵn của \texttt{Tiny
+            Shell}, dùng lệnh \texttt{help}.\\
+            Để xem thông tin về một lệnh nào đó (ví dụ \texttt{cd}), dùng lệnh:
+            \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+help cd
+            \end{minted}
 
 %-------------section 2.6 -------------------------------------------
 	\section{Xử lí theo lô - \texttt{batch processing}}
@@ -425,47 +516,46 @@ $
         File script của \texttt{Tiny Shell} có cấu trúc tương tự các shell
         script khác: các lệnh được viết trên một dòng, có thể bao gồm các
         comment, có thể chạy nền hoặc ẩn. Ví dụ, file \texttt{example.tsh}:
-        \begin{verbatim}
-#!/path/to/tinyshell -f
-# luôn phải bằt đầu bằng dòng như trên, trong đó /path/to/tinyshell là đường
-# dẫn đến file thực thi của Tiny Shell
+        \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+#!/usr/bin/tinyshell -f
+# luon phai bat dau bang dong nhu tren
 ls -1
 # build
 $ gcc abc.c -o abc
-        \end{verbatim}
+        \end{minted}
         Thực thi file này:
-\begin{verbatim}
-$ # thêm quyền thực thi
+\begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ # them quyen thuc thi
 $ chmod +x example.tsh
-$ # thực thi như một file script bình thường
+$ # thuc thi nhu mot file script binh thuong
 $ ./example.tsh
 $
-$ # hoặc có thể gọi qua Tiny Shell, bằng cách này thì không cần file có quyền
-$ # thực thi
+$ # hoac co the goi qua Tiny Shell, bang cach nay thi khong can file co quyen
+$ # thuc thi
 $ tinyshell -f example.tsh
-        \end{verbatim}
+        \end{minted}
 
         File script \texttt{Tiny Shell} có thể thực thi trên các shell khác.
 %-------------section 2.7 -------------------------------------------
 	\section{Gọi \texttt{Tiny Shell} từ các shell khác}
         Để thực thi một câu lệnh bằng \texttt{Tiny Shell} từ một shell khác,
         dùng lệnh:
-        \begin{verbatim}
-$ /path/to/tinyshell -c "<câu lệnh>"
+        \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ tinyshell -c "<command>"
 $ 
 $ # hoặc
-$ /path/to/tinyshell --command="<câu lệnh>"
+$ tinyshell --command="<command>"
 $
-        \end{verbatim}
+        \end{minted}
 
         Để thực thi file script:
-\begin{verbatim}
-$ /path/to/tinyshell -f "<file>"
+        \begin{minted}[frame=single,linenos=true,tabsize=4]{bash}
+$ tinyshell -f "<file>"
 $
-$ # hoặc
-$ /path/to/tinyshell --script="<file>"
+$ # hoac
+$ tinyshell --script="<file>"
 $
-        \end{verbatim}
+        \end{minted}
 
         Có thể gọi \texttt{Tiny Shell} ngay từ chính \texttt{Tiny Shell}.
 
@@ -473,8 +563,14 @@ $
 
 \chapter{Một số bài tập môn Hệ Điều Hành}
 
-%-----------------------Phan II - 1 ----------------------------
-        \input{producer-consumer.tex}
+        \include{producer-consumer}
+        \include{chat}
+        \include{reader-writer}
+        \include{mbr}
+%======================REFERENCE================================
+
+\bibliographystyle{plain}
+\bibliography{reference}
 
 %==================================finish=========================
 

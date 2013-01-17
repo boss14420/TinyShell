@@ -35,6 +35,9 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
+# Escaping for special characters.
+EQUALS = =
+
 # The program to use to edit the cache.
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
@@ -56,6 +59,47 @@ edit_cache:
 # Special rule for the target edit_cache
 edit_cache/fast: edit_cache
 .PHONY : edit_cache/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: install/local
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+.PHONY : install/strip/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -220,6 +264,30 @@ src/command/extcmd.cc.s:
 	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/command/extcmd.cc.s
 .PHONY : src/command/extcmd.cc.s
 
+src/command/helpcmd.o: src/command/helpcmd.cc.o
+.PHONY : src/command/helpcmd.o
+
+# target to build an object file
+src/command/helpcmd.cc.o:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/command/helpcmd.cc.o
+.PHONY : src/command/helpcmd.cc.o
+
+src/command/helpcmd.i: src/command/helpcmd.cc.i
+.PHONY : src/command/helpcmd.i
+
+# target to preprocess a source file
+src/command/helpcmd.cc.i:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/command/helpcmd.cc.i
+.PHONY : src/command/helpcmd.cc.i
+
+src/command/helpcmd.s: src/command/helpcmd.cc.s
+.PHONY : src/command/helpcmd.s
+
+# target to generate assembly for a file
+src/command/helpcmd.cc.s:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/command/helpcmd.cc.s
+.PHONY : src/command/helpcmd.cc.s
+
 src/command/historycmd.o: src/command/historycmd.cc.o
 .PHONY : src/command/historycmd.o
 
@@ -316,6 +384,30 @@ src/job/fgcmd.cc.s:
 	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/fgcmd.cc.s
 .PHONY : src/job/fgcmd.cc.s
 
+src/job/kill.o: src/job/kill.cc.o
+.PHONY : src/job/kill.o
+
+# target to build an object file
+src/job/kill.cc.o:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/kill.cc.o
+.PHONY : src/job/kill.cc.o
+
+src/job/kill.i: src/job/kill.cc.i
+.PHONY : src/job/kill.i
+
+# target to preprocess a source file
+src/job/kill.cc.i:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/kill.cc.i
+.PHONY : src/job/kill.cc.i
+
+src/job/kill.s: src/job/kill.cc.s
+.PHONY : src/job/kill.s
+
+# target to generate assembly for a file
+src/job/kill.cc.s:
+	$(MAKE) -f CMakeFiles/tinyshell.dir/build.make CMakeFiles/tinyshell.dir/src/job/kill.cc.s
+.PHONY : src/job/kill.cc.s
+
 src/job/shell.o: src/job/shell.cc.o
 .PHONY : src/job/shell.o
 
@@ -372,6 +464,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... external"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... tinyshell"
 	@echo "... src/command/builtin.o"
@@ -386,6 +482,9 @@ help:
 	@echo "... src/command/extcmd.o"
 	@echo "... src/command/extcmd.i"
 	@echo "... src/command/extcmd.s"
+	@echo "... src/command/helpcmd.o"
+	@echo "... src/command/helpcmd.i"
+	@echo "... src/command/helpcmd.s"
 	@echo "... src/command/historycmd.o"
 	@echo "... src/command/historycmd.i"
 	@echo "... src/command/historycmd.s"
@@ -398,6 +497,9 @@ help:
 	@echo "... src/job/fgcmd.o"
 	@echo "... src/job/fgcmd.i"
 	@echo "... src/job/fgcmd.s"
+	@echo "... src/job/kill.o"
+	@echo "... src/job/kill.i"
+	@echo "... src/job/kill.s"
 	@echo "... src/job/shell.o"
 	@echo "... src/job/shell.i"
 	@echo "... src/job/shell.s"

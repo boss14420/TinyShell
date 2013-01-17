@@ -14,9 +14,9 @@ FIND_LIBRARY(READLINE readline)
 
 SET(TINYSHELL_VERSION "0.1")
 
-SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -std=c++0x -fno-inline -pedantic-errors -D_TINYSHELL_VERSION_=${TINYSHELL_VERSION}")
+#SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -std=c++0x -fno-inline -pedantic-errors -D_TINYSHELL_VERSION_=${TINYSHELL_VERSION}")
 #SET(CMAKE_CXX_FLAGS "-O2 -Wall -std=gnu++0x -finline-functions -vec-report2 -xHost -DNDEBUG -fopenmp")
-#SET(CMAKE_CXX_FLAGS "-O2 -Wall -std=c++0x -fopenmp -finline-functions -ftree-vectorize -DNDEBUG -D_TINYSHELL_VERSION_=${TINYSHELL_VERSION}")
+SET(CMAKE_CXX_FLAGS "-O2 -Wall -std=c++0x -fopenmp -finline-functions -ftree-vectorize -DNDEBUG -D_TINYSHELL_VERSION_=${TINYSHELL_VERSION}")
 
 SET(COMMON "src/command/command" "src/command/extcmd.h" "src/command/extcmd.cc"
     "src/command/command.h" "src/command/builtin.h" "src/command/builtin.cc" 
